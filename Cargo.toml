@@ -1,0 +1,35 @@
+[package]
+name = "telegram2photoprism"
+version = "0.0.0"
+edition = "2021"
+license = "MIT"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+serde_json = "1.0"
+teloxide = { version = "0.12", features = ["macros", "throttle"] }
+log = "0.4"
+pretty_env_logger = "0.5.0"
+tokio = { version = "1.8", features = ["rt-multi-thread", "macros"] }
+serde = { version = "1.0.196", features = ["derive"] }
+reqwest = { version = "0.11", features = ["json"] }
+rand = "0.8.5"
+tokio-util = "0.7.10"
+sha1 = { version = "0.10.6", features = [] }
+hex = { version = "0.4.3", features = [] }
+futures-util = "0.3.30"
+retry = "2.0.0"
+openssl = { version = "0.10", features = ["vendored"] }
+tempfile = "3.9.0"
+thiserror = "1.0.56"
+anyhow = "1.0.79"
+clap = { version = "4.4.18", features = ["derive", "env"] }
+rust-i18n = "3"
+async-trait = "0.1.77"
+task-local-extensions = "0.1.4"
+moka = { version = "0.12.5", features = ["future"] }
+
+[dev-dependencies]
+testcontainers = "0.15.0"
+testcontainers-modules = { version = "0.3.2" }
