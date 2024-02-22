@@ -10,6 +10,10 @@ This is my first project using the Rust language.
 There are likely pieces of code which can be improved.
 If you have any suggestions, please create a pull request or issue.
 
+# Documentation (In progress)
+
+https://github.com/dssysolyatin/telegram2photoprism/assets/1016070/bfc8ee4c-99b7-4044-a904-105c730b1d6a
+
 # TODO:
 
 1. Add documentation and video demo
