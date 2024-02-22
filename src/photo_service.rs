@@ -3,7 +3,7 @@ use std::path::Path;
 use std::sync::Arc;
 use std::time::Duration;
 
-use anyhow;
+
 use futures_util::TryStreamExt;
 use moka::future::Cache;
 use rand::distributions::{Alphanumeric, DistString};
@@ -185,7 +185,7 @@ impl PhotoPrismPhotoService {
         Ok(photos
             .as_array()
             .and_then(|v| {
-                if v.len() == 0 { None } else { v[0].get("UID") }
+                if v.is_empty() { None } else { v[0].get("UID") }
             })
             .and_then(|v| v.as_str())
             .map(|v| PhotoUID(v.to_owned())))

@@ -155,7 +155,7 @@ async fn main() -> Result<(), anyhow::Error> {
 
 
 async fn handle_media_message(bot: &Bot, app_context: Arc<ApplicationContext>, photoservice: Arc<PhotoPrismPhotoService>, m: Message) -> Result<(), anyhow::Error> {
-    if m.document().is_none() && app_context.disallow_compressed_files == true {
+    if m.document().is_none() && app_context.disallow_compressed_files {
         bot
             .send_message(m.chat.id, t!("error-attach-media-as-document"))
             .reply_to_message_id(m.id)
@@ -171,7 +171,7 @@ async fn handle_media_message(bot: &Bot, app_context: Arc<ApplicationContext>, p
             Some(file_id) => {
                 debug!("file_id: {}", file_id);
                 let downloaded_file_path =
-                    download_file(&bot, file_id, &app_context.working_dir).await?;
+                    download_file(bot, file_id, &app_context.working_dir).await?;
                 let photo_uid_result =
                     photoservice.upload_photo(&downloaded_file_path).await;
                 tokio::fs::remove_file(downloaded_file_path).await?;
@@ -204,7 +204,7 @@ async fn download_file(bot: &Bot, file_id: String, working_dir: &OsString) -> Re
         let file_extension = Path::new(&file.path)
             .extension()
             .and_then(|ext| ext.to_str())
-            .unwrap_or_else(|| UNKNOWN_EXTENSION);
+            .unwrap_or(UNKNOWN_EXTENSION);
         let mut path_buf = PathBuf::new();
         path_buf.push(working_dir);
         path_buf.push(&file.id);
