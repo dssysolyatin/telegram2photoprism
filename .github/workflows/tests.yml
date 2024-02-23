@@ -22,12 +22,34 @@ jobs:
     needs:
       - test
       - clippy
+      - fmt
 
     steps:
       - name: Check whether the needed jobs succeeded or failed
         uses: re-actors/alls-green@release/v1
         with:
           jobs: ${{ toJSON(needs) }}
+
+  fmt:
+    name: fmt
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Install Rust ${{ env.rust_version }}
+        uses: dtolnay/rust-toolchain@master
+        with:
+          toolchain: ${{ env.rust_version }}
+          components: rustfmt
+
+      - name: Cache Dependencies
+        uses: Swatinem/rust-cache@v2
+
+      - name: Check formatting
+        run: |
+          cargo fmt --all -- --check
 
   clippy:
     name: Run linter

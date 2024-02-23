@@ -11,14 +11,14 @@ use clap::{arg, Parser};
 use log::debug;
 use rust_i18n::i18n;
 use serde::{Deserialize, Serialize};
-use teloxide::adaptors::Throttle;
 use teloxide::adaptors::throttle::Limits;
+use teloxide::adaptors::Throttle;
 use teloxide::net::Download;
 use teloxide::prelude::*;
 use teloxide::types::{InlineKeyboardButton, InlineKeyboardMarkup};
 
-use telegram2photoprism::{PhotoPrismPhotoService, PhotoUID};
 use telegram2photoprism::PhotoService;
+use telegram2photoprism::{PhotoPrismPhotoService, PhotoUID};
 
 i18n!("resources/locales", fallback = "en");
 
@@ -51,7 +51,11 @@ struct Args {
     #[arg(long, env = "TELEGRAM2PHOTOPRISM_TELEGRAM_CHAT_ID")]
     telegram_chat_id: i64,
     /// Telegram bot API server. For more information, visit https://github.com/tdlib/telegram-bot-api
-    #[arg(long, env = "TELEGRAM2PHOTOPRISM_BOT_API_SERVER", default_value = "https://api.telegram.org")]
+    #[arg(
+        long,
+        env = "TELEGRAM2PHOTOPRISM_BOT_API_SERVER",
+        default_value = "https://api.telegram.org"
+    )]
     telegram_bot_api_server: String,
     /// Tags from which the user will choose tags for the photo.
     #[arg(long, env = "TELEGRAM2PHOTOPRISM_TAGS", value_delimiter = ',')]
@@ -67,7 +71,11 @@ struct Args {
     photoprism_password: String,
     /// Number of seconds after which the bot should obtain a new X-SESSION-ID using the username and password.
     /// Should be less than PHOTOPRISM_SESSION_TIMEOUT (https://docs.photoprism.app/getting-started/config-options/)
-    #[arg(long, env = "TELEGRAM2PHOTOPRISM_PHOTOPRISM_SESSION_REFRESH_SEC", default_value_t = 86400)]
+    #[arg(
+        long,
+        env = "TELEGRAM2PHOTOPRISM_PHOTOPRISM_SESSION_REFRESH_SEC",
+        default_value_t = 86400
+    )]
     photoprism_session_refresh_sec: u64,
     /// Locale
     #[arg(long, env = "TELEGRAM2PHOTOPRISM_LOCALE", value_parser = ["en", "ru"], default_value = "en")]
@@ -78,7 +86,11 @@ struct Args {
     /// By default, Telegram compresses videos and images if they are not attached as files.
     /// The quality of the files is significantly reduced after compression.
     /// This option prohibits the bot from uploading compressed files to the PhotoPrism server.
-    #[arg(long, env = "TELEGRAM2PHOTOPRISM_DISALLOW_COMPRESSED_FILES", default_value_t = false)]
+    #[arg(
+        long,
+        env = "TELEGRAM2PHOTOPRISM_DISALLOW_COMPRESSED_FILES",
+        default_value_t = false
+    )]
     disallow_compressed_files: bool,
 }
 
@@ -126,20 +138,17 @@ async fn main() -> Result<(), anyhow::Error> {
     let handler = dptree::entry()
         .branch(
             Update::filter_message()
-                .filter(move |m: Message| { m.chat.id == chat_id })
-                .endpoint(handle_media_message_with_error)
+                .filter(move |m: Message| m.chat.id == chat_id)
+                .endpoint(handle_media_message_with_error),
         )
         .branch(
             Update::filter_callback_query()
-                .filter(move |callback: CallbackQuery| {
-                    match callback.message {
-                        Some(msg) => msg.chat.id == chat_id,
-                        None => false
-                    }
+                .filter(move |callback: CallbackQuery| match callback.message {
+                    Some(msg) => msg.chat.id == chat_id,
+                    None => false,
                 })
-                .endpoint(handle_callback_message_with_error)
+                .endpoint(handle_callback_message_with_error),
         );
-
 
     // Create a dispatcher for our bot
     Dispatcher::builder(bot, handler)
@@ -153,11 +162,14 @@ async fn main() -> Result<(), anyhow::Error> {
     Ok(())
 }
 
-
-async fn handle_media_message(bot: &Bot, app_context: Arc<ApplicationContext>, photoservice: Arc<PhotoPrismPhotoService>, m: Message) -> Result<(), anyhow::Error> {
+async fn handle_media_message(
+    bot: &Bot,
+    app_context: Arc<ApplicationContext>,
+    photoservice: Arc<PhotoPrismPhotoService>,
+    m: Message,
+) -> Result<(), anyhow::Error> {
     if m.document().is_none() && app_context.disallow_compressed_files {
-        bot
-            .send_message(m.chat.id, t!("error-attach-media-as-document"))
+        bot.send_message(m.chat.id, t!("error-attach-media-as-document"))
             .reply_to_message_id(m.id)
             .await?;
         Ok(())
@@ -172,27 +184,37 @@ async fn handle_media_message(bot: &Bot, app_context: Arc<ApplicationContext>, p
                 debug!("file_id: {}", file_id);
                 let downloaded_file_path =
                     download_file(bot, file_id, &app_context.working_dir).await?;
-                let photo_uid_result =
-                    photoservice.upload_photo(&downloaded_file_path).await;
+                let photo_uid_result = photoservice.upload_photo(&downloaded_file_path).await;
                 tokio::fs::remove_file(downloaded_file_path).await?;
                 let photo_uid = photo_uid_result?;
                 let tags_keyboard = make_tags_keyboard(
-                    &TagKeyboardData { id: -1, values: vec![], photo_uid: photo_uid.0 },
+                    &TagKeyboardData {
+                        id: -1,
+                        values: vec![],
+                        photo_uid: photo_uid.0,
+                    },
                     &app_context.tags,
                 );
-                bot
-                    .edit_message_text(upload_started_message.chat.id, upload_started_message.id, t!("success-file-is-uploaded"))
-                    .reply_markup(tags_keyboard)
-                    .await?;
+                bot.edit_message_text(
+                    upload_started_message.chat.id,
+                    upload_started_message.id,
+                    t!("success-file-is-uploaded"),
+                )
+                .reply_markup(tags_keyboard)
+                .await?;
                 Ok(())
             }
-            None => Err(anyhow!("File from message has not been found."))
+            None => Err(anyhow!("File from message has not been found.")),
         }
     }
 }
 
 // TODO: Need to add progress bar.
-async fn download_file(bot: &Bot, file_id: String, working_dir: &OsString) -> Result<PathBuf, anyhow::Error> {
+async fn download_file(
+    bot: &Bot,
+    file_id: String,
+    working_dir: &OsString,
+) -> Result<PathBuf, anyhow::Error> {
     let file = bot.get_file(file_id).await?;
     let path = Path::new(&file.path);
     if path.is_absolute() {
@@ -215,7 +237,12 @@ async fn download_file(bot: &Bot, file_id: String, working_dir: &OsString) -> Re
     }
 }
 
-async fn handle_callback_message(bot: &Bot, app_context: Arc<ApplicationContext>, photoservice: Arc<PhotoPrismPhotoService>, q: CallbackQuery) -> Result<(), anyhow::Error> {
+async fn handle_callback_message(
+    bot: &Bot,
+    app_context: Arc<ApplicationContext>,
+    photoservice: Arc<PhotoPrismPhotoService>,
+    q: CallbackQuery,
+) -> Result<(), anyhow::Error> {
     if let (Some(keyboard_data_str), Some(Message { id, chat, .. })) = (q.data, q.message) {
         let tag_keyboard_data: TagKeyboardData = serde_json::from_str(&keyboard_data_str)?;
         let new_keyboard = make_tags_keyboard(&tag_keyboard_data, &app_context.tags);
@@ -232,8 +259,7 @@ async fn handle_callback_message(bot: &Bot, app_context: Arc<ApplicationContext>
             let message = t!("success-save-tags", tags = &selected_tags.join(","));
             bot.edit_message_text(chat.id, id, message).await?;
         } else {
-            bot
-                .edit_message_reply_markup(chat.id, id)
+            bot.edit_message_reply_markup(chat.id, id)
                 .reply_markup(new_keyboard)
                 .await?;
         }
@@ -246,16 +272,14 @@ async fn handle_callback_message(bot: &Bot, app_context: Arc<ApplicationContext>
 fn get_file_id(message: &Message) -> Option<String> {
     let maybe_photo_file_id: Option<String> = message
         .photo()
-        .and_then(|photo_sizes| { photo_sizes.last() })
-        .map(|photo_size| { photo_size.file.id.clone() });
-    let maybe_video_file_id: Option<String> =
-        message.video().map(|v| { v.file.id.to_owned() });
+        .and_then(|photo_sizes| photo_sizes.last())
+        .map(|photo_size| photo_size.file.id.clone());
+    let maybe_video_file_id: Option<String> = message.video().map(|v| v.file.id.to_owned());
     // TODO: Add filter by extension
-    let maybe_document_file_id: Option<String> =
-        message.document().map(|d| {
-            d.file.id.clone()
-        });
-    maybe_document_file_id.or(maybe_photo_file_id).or(maybe_video_file_id)
+    let maybe_document_file_id: Option<String> = message.document().map(|d| d.file.id.clone());
+    maybe_document_file_id
+        .or(maybe_photo_file_id)
+        .or(maybe_video_file_id)
 }
 
 fn make_tags_keyboard(data: &TagKeyboardData, tags: &[String]) -> InlineKeyboardMarkup {
@@ -300,19 +324,26 @@ fn make_tags_keyboard(data: &TagKeyboardData, tags: &[String]) -> InlineKeyboard
     };
     let callback_data_as_string = serde_json::to_string(&callback_data).unwrap();
 
-    keyboard.push(vec![InlineKeyboardButton::callback(t!("save"), callback_data_as_string)]);
+    keyboard.push(vec![InlineKeyboardButton::callback(
+        t!("save"),
+        callback_data_as_string,
+    )]);
     InlineKeyboardMarkup::new(keyboard)
 }
 
 // TODO: Can error handling with dependencies be done more elegantly?
-async fn handle_media_message_with_error(bot: Bot, app_context: Arc<ApplicationContext>, photoservice: Arc<PhotoPrismPhotoService>, m: Message) -> Result<(), anyhow::Error> {
+async fn handle_media_message_with_error(
+    bot: Bot,
+    app_context: Arc<ApplicationContext>,
+    photoservice: Arc<PhotoPrismPhotoService>,
+    m: Message,
+) -> Result<(), anyhow::Error> {
     let chat_id = m.chat.id;
     let message_id = m.id;
     match handle_media_message(&bot, app_context, photoservice, m).await {
         Ok(()) => Ok(()),
         Err(err) => {
-            bot
-                .send_message(chat_id, t!("error-panic"))
+            bot.send_message(chat_id, t!("error-panic"))
                 .reply_to_message_id(message_id)
                 .await?;
             Err(err)
@@ -320,14 +351,20 @@ async fn handle_media_message_with_error(bot: Bot, app_context: Arc<ApplicationC
     }
 }
 
-async fn handle_callback_message_with_error(bot: Bot, app_context: Arc<ApplicationContext>, photoservice: Arc<PhotoPrismPhotoService>, q: CallbackQuery) -> Result<(), anyhow::Error> {
+async fn handle_callback_message_with_error(
+    bot: Bot,
+    app_context: Arc<ApplicationContext>,
+    photoservice: Arc<PhotoPrismPhotoService>,
+    q: CallbackQuery,
+) -> Result<(), anyhow::Error> {
     let chat_id_opt = q.message.as_ref().map(|x| x.chat.id);
     let message_id_opt = q.message.as_ref().map(|x| x.id);
     if let (Some(chat_id), Some(message_id)) = (chat_id_opt, message_id_opt) {
         match handle_callback_message(&bot, app_context, photoservice, q).await {
             Ok(()) => Ok(()),
             Err(err) => {
-                bot.edit_message_text(chat_id, message_id, t!("error-panic")).await?;
+                bot.edit_message_text(chat_id, message_id, t!("error-panic"))
+                    .await?;
                 Err(err)
             }
         }
