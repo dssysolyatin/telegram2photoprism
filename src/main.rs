@@ -258,7 +258,7 @@ fn get_file_id(message: &Message) -> Option<String> {
     maybe_document_file_id.or(maybe_photo_file_id).or(maybe_video_file_id)
 }
 
-fn make_tags_keyboard(data: &TagKeyboardData, tags: &Vec<String>) -> InlineKeyboardMarkup {
+fn make_tags_keyboard(data: &TagKeyboardData, tags: &[String]) -> InlineKeyboardMarkup {
     let mut keyboard: Vec<Vec<InlineKeyboardButton>> = vec![];
     let mut new_values = data.values.to_owned();
     let element_pos = data.values.iter().position(|&x| x == data.id);
