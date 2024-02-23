@@ -1,5 +1,7 @@
 # telegram2photoprism
 
+![CI](https://github.com/dssysolyatin/telegram2photoprism/actions/workflows/ci.yml/badge.svg)
+
 telegram2photoprism is a bot that downloads images and videos from a Telegram channel and uploads them to a PhotoPrism
 server. You can also add tags to your images and videos which is not possible to do
 using [photoprism with WebDAV](https://docs.photoprism.app/user-guide/sync/webdav/).
