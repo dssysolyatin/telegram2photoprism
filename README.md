@@ -6,11 +6,15 @@ telegram2photoprism is a bot that downloads images and videos from a Telegram ch
 server. You can also add tags to your images and videos which is not possible to do
 using [photoprism with WebDAV](https://docs.photoprism.app/user-guide/sync/webdav/).
 
-# Code quality
+# Why ?
 
-This is my first project using the Rust language.
-There are likely pieces of code which can be improved.
-If you have any suggestions, please create a pull request or issue.
+Telegram is a very convenient way to communicate with your family, and chats with family often include many important
+pictures. It is very convenient to upload these pictures to a private PhotoPrism server directly from the Telegram
+channel.
+
+Another issue is that PhotoPrism's face detection is not ideal, so tags often need to be added to photos manually. In
+most photos, there are only a few specific people, so when a photo is uploaded, the desire is to choose them from
+predefined tags.
 
 # Documentation (In progress)
 
@@ -33,6 +37,12 @@ https://github.com/dssysolyatin/telegram2photoprism/assets/1016070/bfc8ee4c-99b7
 | --disallow-compressed-files                                                                | By default, Telegram compresses videos and images if they are not attached as files. The quality of the files is significantly reduced after compression. This option prohibits the bot from uploading compressed files to the PhotoPrism server | -                        |
 | -h, --help                                                                                 | Print help                                                                                                                                                                                                                                       | -                        |
 | -V, --version                                                                              | Print version                                                                                                                                                                                                                                    | -                        |
+
+# Code quality
+
+This is my first project using the Rust language.
+There are likely pieces of code which can be improved.
+If you have any suggestions, please create a pull request or issue.
 
 # TODO:
 
