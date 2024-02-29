@@ -187,21 +187,30 @@ async fn handle_media_message(
                 let photo_uid_result = photoservice.upload_photo(&downloaded_file_path).await;
                 tokio::fs::remove_file(downloaded_file_path).await?;
                 let photo_uid = photo_uid_result?;
-                let tags_keyboard = make_tags_keyboard(
-                    &TagKeyboardData {
-                        id: -1,
-                        values: vec![],
-                        photo_uid: photo_uid.0,
-                    },
-                    &app_context.tags,
-                );
-                bot.edit_message_text(
-                    upload_started_message.chat.id,
-                    upload_started_message.id,
-                    t!("success-file-is-uploaded"),
-                )
-                .reply_markup(tags_keyboard)
-                .await?;
+
+                if app_context.tags.is_empty() {
+                    bot.edit_message_text(
+                        upload_started_message.chat.id,
+                        upload_started_message.id,
+                        t!("success-file-is-uploaded-without-tags"),
+                    )
+                    .await?;
+                } else {
+                    bot.edit_message_text(
+                        upload_started_message.chat.id,
+                        upload_started_message.id,
+                        t!("success-file-is-uploaded"),
+                    )
+                    .reply_markup(make_tags_keyboard(
+                        &TagKeyboardData {
+                            id: -1,
+                            values: vec![],
+                            photo_uid: photo_uid.0,
+                        },
+                        &app_context.tags,
+                    ))
+                    .await?;
+                }
                 Ok(())
             }
             None => Err(anyhow!("File from message has not been found.")),

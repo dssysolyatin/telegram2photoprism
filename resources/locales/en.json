@@ -4,5 +4,6 @@
   "error-panic": "Something went wrong. Please check the bot server logs.",
   "error-attach-media-as-document": "Please attach an image or video as a file or allow low-quality photos and videos in the bot settings.",
   "success-file-is-uploaded": "The file has been uploaded to the PhotoPrism server. Please choose tags.",
+  "success-file-is-uploaded-without-tags": "The file has been uploaded to the PhotoPrism server.",
   "success-save-tags": "Tags for the file have been successfully saved: %{tags}"
 }
