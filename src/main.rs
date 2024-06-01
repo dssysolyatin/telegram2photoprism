@@ -69,7 +69,7 @@ struct Args {
     /// PhotoPrism password
     #[arg(long, env = "TELEGRAM2PHOTOPRISM_PHOTOPRISM_PASSWORD")]
     photoprism_password: String,
-    /// Number of seconds after which the bot should obtain a new X-SESSION-ID using the username and password.
+    /// Number of seconds after which the bot should obtain a new X-Auth-Token using the username and password.
     /// Should be less than PHOTOPRISM_SESSION_TIMEOUT (https://docs.photoprism.app/getting-started/config-options/)
     #[arg(
         long,

@@ -30,7 +30,7 @@ impl Image for PhotoPrismContainer {
     }
 
     fn tag(&self) -> String {
-        "latest".to_string()
+        "240531".to_string()
     }
 
     fn ready_conditions(&self) -> Vec<WaitFor> {

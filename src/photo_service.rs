@@ -1,5 +1,6 @@
 use std::collections::HashMap;
 use std::path::Path;
+use std::string::ToString;
 use std::sync::Arc;
 use std::time::Duration;
 
@@ -14,8 +15,8 @@ use tokio::fs::File;
 use tokio_util::codec::{BytesCodec, FramedRead};
 
 use crate::photo_service::PhotoPrismServiceError::{
-    AddLabelFailed, AuthenticationError, CanNotFindPhotoByHash, IndexingFailed, UploadFailed,
-    UserIDIsMissing, XSessionHeaderMissing,
+    AccessTokenIsMissing, AddLabelFailed, AuthenticationError, CanNotFindPhotoByHash,
+    IndexingFailed, UploadFailed, UserIDIsMissing,
 };
 
 #[derive(Debug, Clone)]
@@ -33,8 +34,8 @@ pub trait PhotoService {
 pub enum PhotoPrismServiceError {
     #[error("Failed to authenticate at PhotoPrism service {0}.")]
     AuthenticationError(String),
-    #[error("X-Session-ID header is missing.")]
-    XSessionHeaderMissing,
+    #[error("access_token is missing.")]
+    AccessTokenIsMissing,
     #[error("user.ID is missing in response json {0}.")]
     UserIDIsMissing(String),
     #[error("Failed to upload file {file} to PhotoPrism server: {details}.")]
@@ -72,7 +73,7 @@ pub struct PhotoPrismPhotoService {
 }
 
 pub struct PhotoPrismUser {
-    pub session_id: String,
+    pub access_token: String,
     uid: String,
 }
 
@@ -86,7 +87,7 @@ impl PhotoPrismPhotoService {
         let client = reqwest::Client::new();
         let user_cache = Cache::builder()
             .max_capacity(1)
-            // Reload X-Session-ID every N seconds
+            // Reload X-Auth-Token every N seconds
             .time_to_live(Duration::from_secs(session_refresh_sec))
             .build();
 
@@ -129,14 +130,13 @@ impl PhotoPrismPhotoService {
             return Err(AuthenticationError(auth_resp.text().await?));
         }
 
-        let session_id = auth_resp
-            .headers()
-            .get("X-Session-ID")
-            .map(|header| header.to_str().map_err(|e| anyhow::Error::from(e).into()))
-            .unwrap_or_else(|| Err(XSessionHeaderMissing))?
-            .to_owned();
-
         let user_data = auth_resp.json::<serde_json::Value>().await?;
+
+        let access_token = user_data
+            .get("access_token")
+            .and_then(|v| v.as_str().map(Ok))
+            .unwrap_or_else(|| Err(AccessTokenIsMissing))?
+            .to_owned();
 
         let uid = user_data
             .get("user")
@@ -145,7 +145,7 @@ impl PhotoPrismPhotoService {
             .unwrap_or_else(|| Err(UserIDIsMissing(user_data.to_string())))?
             .to_owned();
 
-        Ok(PhotoPrismUser { session_id, uid })
+        Ok(PhotoPrismUser { access_token, uid })
     }
 
     async fn calculate_sha1<P: AsRef<Path>>(file_path: P) -> Result<String, anyhow::Error> {
@@ -167,7 +167,7 @@ impl PhotoPrismPhotoService {
         // It's better to have a separate method instead.
         let user = self.get_user().await?;
         let response = request_builder
-            .header("X-Session-ID", &user.session_id)
+            .header("X-Auth-Token", &user.access_token)
             .send()
             .await?;
         Ok(response)

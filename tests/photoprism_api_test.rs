@@ -123,10 +123,10 @@ async fn test_refresh_token() -> Result<(), anyhow::Error> {
                 sleep(Duration::from_secs(1)).await;
                 let user_after_reload = photoprism_service.get_user().await?;
 
-                if user_before_reload.session_id != user_after_reload.session_id {
+                if user_before_reload.access_token != user_after_reload.access_token {
                     debug!(
                         "old session id: {}, new session id: {}",
-                        user_before_reload.session_id, user_after_reload.session_id
+                        user_before_reload.access_token, user_after_reload.access_token
                     );
                     break;
                 }
