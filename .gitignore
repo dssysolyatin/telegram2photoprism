@@ -11,5 +11,3 @@ target/
 *.pdb
 .env
 todo.md
-
-.env
