@@ -1,0 +1,19 @@
+if: tag =~ ^v[0-9]+\.[0-9]+\.[0-9]+test$
+os: linux
+arch:
+  - amd64
+  - arm64
+services:
+  docker
+jobs:
+  include:
+    - stage: build and push
+      script:
+        -| echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
+           docker buildx build --platform linux/${TRAVIS_CPU_ARCH} -t dssysolyatin/telegram2photoprism:${TRAVIS_TAG}-${TRAVIS_CPU_ARCH} --push .
+
+    - stage: manifest
+      arch: amd64
+      script:
+        -| echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin 
+           docker manifest create dssysolyatin/telegram2photoprism:${TRAVIS_TAG} dssysolyatin/telegram2photoprism:${TRAVIS_TAG}-amd64 dssysolyatin/telegram2photoprism:${TRAVIS_TAG}-arm64
