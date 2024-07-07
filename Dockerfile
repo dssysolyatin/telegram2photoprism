@@ -19,6 +19,7 @@ COPY resources resources
 # Build the application
 RUN cargo build --release
 
-FROM alpine
+FROM scratch
+COPY --from=builder /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
 COPY --from=builder /telegram2photoprism/target/release/telegram2photoprism /telegram2photoprism
 CMD ["/telegram2photoprism"]
