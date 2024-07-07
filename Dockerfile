@@ -1,4 +1,4 @@
-FROM rust:alpine as builder
+FROM rust AS builder
 
     # Create a new empty shell project
 RUN USER=root cargo new --bin telegram2photoprism && \
