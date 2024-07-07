@@ -1,0 +1,12 @@
+version: '3.8'
+services:
+  telegram2photoprism:
+    image: dssysolyatin/telegram2photoprism:latest
+    env_file:
+      - .env
+    environment:
+      RUST_LOG: info
+      TELEGRAM_BOT_SERVER_DATA_FOLDER: "/var/lib/telegram-bot-api"
+    volumes:
+      - telegram-bot-api-data:/var/lib/telegram-bot-api
+    restart: unless-stopped

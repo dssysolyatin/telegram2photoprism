@@ -1,0 +1,27 @@
+version: '3.8'
+services:
+  telegram-bot-server:
+    image: aiogram/telegram-bot-api
+    env_file:
+      - .env
+    environment:
+      TELEGRAM_LOCAL: true
+    volumes:
+      - telegram-bot-api-data:/var/lib/telegram-bot-api
+    restart: always
+
+  telegram2photoprism:
+    image: dssysolyatin/telegram2photoprism:latest
+    depends_on:
+      - telegram-bot-server
+    env_file:
+      - .env
+    environment:
+      RUST_LOG: info
+    volumes:
+      - telegram-bot-api-data:/var/lib/telegram-bot-api
+    restart: unless-stopped
+
+volumes:
+  telegram-bot-api-data:
+

@@ -8,7 +8,7 @@ use std::sync::Arc;
 
 use anyhow::anyhow;
 use clap::{arg, Parser};
-use log::debug;
+use log::{debug, info};
 use rust_i18n::i18n;
 use serde::{Deserialize, Serialize};
 use teloxide::adaptors::throttle::Limits;
@@ -149,6 +149,8 @@ async fn main() -> Result<(), anyhow::Error> {
                 })
                 .endpoint(handle_callback_message_with_error),
         );
+
+    info!("Starting telegram2photoprism bot...");
 
     // Create a dispatcher for our bot
     Dispatcher::builder(bot, handler)

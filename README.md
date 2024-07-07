@@ -40,7 +40,7 @@ https://github.com/dssysolyatin/telegram2photoprism/assets/1016070/bfc8ee4c-99b7
 
 ### Set up [telegram bot api server](https://github.com/tdlib/telegram-bot-api)
 
-The default Telegram server https://api.telegram.org doesn't allow downloading files larger than 20MB from chats.
+The default Telegram server https://api.telegram.org doesn't allow downloading files larger than [20MB](https://core.telegram.org/bots/faq#how-do-i-download-files) from chats.
 If you only plan to use the bot for photos, this is okay.
 But if you want to upload videos larger than 20MB to the PhotoPrism server, you need to run
 the [Telegram Bot API server](https://github.com/tdlib/telegram-bot-api) in local mode.
