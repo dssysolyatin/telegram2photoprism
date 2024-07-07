@@ -61,6 +61,16 @@ telegram2photoprism \
 
 If you want to use environment variables or specify tags, telegram bot api server then see next section.
 
+### Run telegram2photoprism using docker
+#### Docker image
+[telegram2photoprism Docker Image](https://hub.docker.com/r/dssysolyatin/telegram2photoprism)
+
+#### Example Docker Compose Files
+- [compose.simple.yaml](https://github.com/dssysolyatin/telegram2photoprism/blob/main/compose.simple.yaml): Docker Compose configuration for running telegram2photoprism alone.
+- [compose.telegram-bot-server.yaml](https://github.com/dssysolyatin/telegram2photoprism/blob/main/compose.telegram-bot-server.yaml): Docker Compose configuration for running telegram2photoprism with a Telegram bot server.
+
+TODO: Add more documentation to docker section
+
 ### More options:
 
 | Argument                                                                                   | Description                                                                                                                                                                                                                                      | Default                  |
